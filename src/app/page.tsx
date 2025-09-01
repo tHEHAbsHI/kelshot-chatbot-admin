@@ -1,103 +1,209 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState, useRef, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
+import { useChat } from '@/hooks/useApi';
+import { Send, Bot, User } from 'lucide-react';
+
+interface ChatMessage {
+  id: string;
+  content: string;
+  isUser: boolean;
+  timestamp: Date;
+}
+
+export default function HomePage() {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [threadId, setThreadId] = useState<string | undefined>();
+  const [selectedModel, setSelectedModel] = useState('gemini-2.5-pro');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatMutation = useChat();
+
+  // Temporary user ID - in a real app, this would come from authentication
+  const userId = 1;
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim()) return;
+
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      content: inputMessage,
+      isUser: true,
+      timestamp: new Date(),
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    const currentMessage = inputMessage;
+    setInputMessage('');
+
+    try {
+      const response = await chatMutation.mutateAsync({
+        user_id: userId,
+        message: currentMessage,
+        thread_id: threadId,
+        model: selectedModel,
+      });
+
+      const botMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        content: response.reply,
+        isUser: false,
+        timestamp: new Date(),
+      };
+
+      setMessages(prev => [...prev, botMessage]);
+      setThreadId(response.thread_id);
+    } catch (error) {
+      console.error('Chat error:', error);
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        content: 'Sorry, I encountered an error. Please try again.',
+        isUser: false,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="flex flex-col h-full max-w-4xl mx-auto">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-foreground">Welcome to Task Manager</h1>
+        <p className="text-muted-foreground mt-2">
+          Chat with our AI assistant to get help with your tasks and projects.
+        </p>
+        <div className="mt-4 flex items-center space-x-2">
+          <label htmlFor="model-select" className="text-sm font-medium text-foreground">
+            AI Model:
+          </label>
+          <Select
+            id="model-select"
+            value={selectedModel}
+            onChange={(e) => setSelectedModel(e.target.value)}
+            className="w-48"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+            <option value="gemini-2.0-pro">Gemini 2.0 Pro</option>
+            <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+          </Select>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-md">
+          <p className="text-sm text-amber-800">
+            <strong>Note:</strong> This application uses free API keys, so there are rate limits in place. 
+            Please be patient if responses are slower than expected.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex-1 flex flex-col bg-card rounded-lg border shadow-sm">
+        {/* Chat Header */}
+        <div className="flex items-center p-4 border-b">
+          <Bot className="h-5 w-5 mr-2 text-primary" />
+          <h2 className="font-semibold">AI Assistant</h2>
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {messages.length === 0 && (
+            <div className="text-center text-muted-foreground py-8">
+              <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Start a conversation by typing a message below.</p>
+            </div>
+          )}
+          
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+            >
+              <div
+                className={`flex items-start space-x-2 max-w-[80%] ${
+                  message.isUser ? 'flex-row-reverse space-x-reverse' : ''
+                }`}
+              >
+                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                  message.isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                }`}>
+                  {message.isUser ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
+                </div>
+                <div
+                  className={`px-4 py-2 rounded-lg ${
+                    message.isUser
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-foreground'
+                  }`}
+                >
+                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  <p className={`text-xs mt-1 ${
+                    message.isUser ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                  }`}>
+                    {message.timestamp.toLocaleTimeString()}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+          
+          {chatMutation.isPending && (
+            <div className="flex justify-start">
+              <div className="flex items-start space-x-2 max-w-[80%]">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                  <Bot className="h-4 w-4" />
+                </div>
+                <div className="px-4 py-2 rounded-lg bg-muted">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input */}
+        <div className="p-4 border-t">
+          <div className="flex space-x-2">
+            <Input
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Type your message..."
+              disabled={chatMutation.isPending}
+              className="flex-1"
+            />
+            <Button
+              onClick={handleSendMessage}
+              disabled={!inputMessage.trim() || chatMutation.isPending}
+              loading={chatMutation.isPending}
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
