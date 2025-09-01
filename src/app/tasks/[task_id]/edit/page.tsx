@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { useTask, useUpdateTask, useUsers } from '@/hooks/useApi';
+import { User } from '@/lib/api';
 import { ArrowLeft, Save, X } from 'lucide-react';
 import Link from 'next/link';
 
@@ -79,6 +80,9 @@ export default function EditTaskPage() {
     try {
       const taskUpdateData = {
         ...formData,
+        status: formData.status as 'pending' | 'in_progress' | 'completed' | 'cancelled',
+        priority: formData.priority as 'low' | 'medium' | 'high' | 'urgent',
+        assigned_to: parseInt(formData.assigned_to),
         tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : [],
       };
       
@@ -242,7 +246,7 @@ export default function EditTaskPage() {
                   className={errors.assigned_to ? 'border-destructive' : ''}
                 >
                   <option value="">Select a user</option>
-                  {usersData?.users?.map((user) => (
+                  {usersData?.users?.map((user: User) => (
                     <option key={user.id} value={user.id}>
                       {user.name} ({user.email})
                     </option>

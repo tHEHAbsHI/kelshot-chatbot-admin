@@ -46,7 +46,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   );
 }
 
-export function MobileMenuButton({ onClick }: { onClick: () => void }) {
+export function MobileMenuButton({ onClick }: { onClick?: () => void }) {
   return (
     <Button
       variant="ghost"

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { useCreateTask, useUsers } from '@/hooks/useApi';
+import { User } from '@/lib/api';
 import { ArrowLeft, Save, X } from 'lucide-react';
 import Link from 'next/link';
 
@@ -60,12 +61,19 @@ export default function NewTaskPage() {
     }
 
     try {
+      // Temporary user ID - in a real app, this would come from authentication
+      const createdByUserId = 1;
+      
       const taskData = {
         ...formData,
+        status: formData.status as 'pending' | 'in_progress' | 'completed' | 'cancelled',
+        priority: formData.priority as 'low' | 'medium' | 'high' | 'urgent',
+        assigned_to: parseInt(formData.assigned_to),
+        created_by: createdByUserId,
         tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : [],
       };
       
-      await createTaskMutation.mutateAsync(taskData);
+      await createTaskMutation.mutateAsync({ taskData, createdByUserId });
       router.push('/tasks');
     } catch (error) {
       console.error('Error creating task:', error);
@@ -206,7 +214,7 @@ export default function NewTaskPage() {
                   className={errors.assigned_to ? 'border-destructive' : ''}
                 >
                   <option value="">Select a user</option>
-                  {usersData?.users?.map((user) => (
+                  {usersData?.users?.map((user: User) => (
                     <option key={user.id} value={user.id}>
                       {user.name} ({user.email})
                     </option>

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { useTasks, useDeleteTask } from '@/hooks/useApi';
+import { Task } from '@/lib/api';
 import { format } from 'date-fns';
 import { 
   Plus, 
@@ -61,7 +62,7 @@ export default function TasksPage() {
     }
   };
 
-  const filteredTasks = tasksData?.tasks?.filter((task) => {
+  const filteredTasks = tasksData?.tasks?.filter((task: Task) => {
     if (filters.status && task.status !== filters.status) return false;
     if (filters.priority && task.priority !== filters.priority) return false;
     
@@ -240,16 +241,16 @@ export default function TasksPage() {
               <p>No tasks found matching your filters.</p>
             </div>
           ) : (
-            currentTasks.map((task) => (
+            currentTasks.map((task: Task) => (
               <div key={task.id} className="p-4 hover:bg-muted/50 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <h4 className="font-medium">{task.title}</h4>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[task.priority]}`}>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[task.priority as keyof typeof priorityColors]}`}>
                         {task.priority}
                       </span>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[task.status]}`}>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[task.status as keyof typeof statusColors]}`}>
                         {task.status.replace('_', ' ')}
                       </span>
                     </div>

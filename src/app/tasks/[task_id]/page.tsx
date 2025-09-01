@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useTask, useSimilarTasks, useDeleteTask } from '@/hooks/useApi';
+import { Task } from '@/lib/api';
 import { format } from 'date-fns';
 import { 
   ArrowLeft, 
@@ -45,7 +46,7 @@ export default function TaskDetailPage() {
   const router = useRouter();
   const taskId = parseInt(params.task_id as string);
 
-  const { data: task, isLoading, error } = useTask(taskId);
+  const { data: taskData, isLoading, error } = useTask(taskId);
   const { data: similarTasks } = useSimilarTasks(taskId, 5);
   const deleteTaskMutation = useDeleteTask();
 
@@ -68,7 +69,7 @@ export default function TaskDetailPage() {
     );
   }
 
-  if (error || !task) {
+  if (error || !taskData?.task) {
     return (
       <div className="text-center py-8">
         <p className="text-destructive">Task not found or error loading task.</p>
@@ -82,7 +83,8 @@ export default function TaskDetailPage() {
     );
   }
 
-  const StatusIcon = statusIcons[task.status];
+  const task = taskData.task;
+  const StatusIcon = statusIcons[task.status as keyof typeof statusIcons];
 
   return (
     <div className="space-y-6">
@@ -139,7 +141,7 @@ export default function TaskDetailPage() {
                   <h3 className="font-medium mb-2">Status</h3>
                   <div className="flex items-center gap-2">
                     <StatusIcon className="h-4 w-4" />
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[task.status]}`}>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[task.status as keyof typeof statusColors]}`}>
                       {task.status.replace('_', ' ')}
                     </span>
                   </div>
@@ -147,7 +149,7 @@ export default function TaskDetailPage() {
 
                 <div>
                   <h3 className="font-medium mb-2">Priority</h3>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[task.priority]}`}>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[task.priority as keyof typeof priorityColors]}`}>
                     {task.priority}
                   </span>
                 </div>
@@ -192,7 +194,7 @@ export default function TaskDetailPage() {
             <div className="bg-card border rounded-lg p-6">
               <h2 className="text-xl font-semibold mb-4">Similar Tasks</h2>
               <div className="space-y-3">
-                {similarTasks.map((similarTask) => (
+                {similarTasks.map((similarTask: Task) => (
                   <Link
                     key={similarTask.id}
                     href={`/tasks/${similarTask.id}`}
@@ -206,10 +208,10 @@ export default function TaskDetailPage() {
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[similarTask.status]}`}>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[similarTask.status as keyof typeof statusColors]}`}>
                           {similarTask.status.replace('_', ' ')}
                         </span>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[similarTask.priority]}`}>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[similarTask.priority as keyof typeof priorityColors]}`}>
                           {similarTask.priority}
                         </span>
                       </div>

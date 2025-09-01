@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { useUsers, useDeleteUser } from '@/hooks/useApi';
+import { User as UserType } from '@/lib/api';
 import { format } from 'date-fns';
 import { 
   Plus, 
@@ -44,7 +45,7 @@ export default function UsersPage() {
     }
   };
 
-  const filteredUsers = usersData?.users?.filter((user) => {
+  const filteredUsers = usersData?.users?.filter((user: UserType) => {
     if (filters.role && user.role !== filters.role) return false;
     if (filters.department && user.department !== filters.department) return false;
     if (filters.is_active !== '' && user.is_active !== (filters.is_active === 'true')) return false;
@@ -183,7 +184,7 @@ export default function UsersPage() {
               <p>No users found matching your filters.</p>
             </div>
           ) : (
-            filteredUsers.map((user) => (
+            filteredUsers.map((user: UserType) => (
               <div key={user.id} className="p-4 hover:bg-muted/50 transition-colors">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">

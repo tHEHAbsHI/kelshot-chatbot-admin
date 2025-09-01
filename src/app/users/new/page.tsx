@@ -16,10 +16,13 @@ export default function NewUserPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    username: '',
     role: 'user',
     department: '',
     position: '',
     phone: '',
+    is_active: true,
+    is_admin: false,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -35,6 +38,10 @@ export default function NewUserPage() {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
+    }
+    
+    if (!formData.username.trim()) {
+      newErrors.username = 'Username is required';
     }
     
     if (!formData.role) {
@@ -124,6 +131,21 @@ export default function NewUserPage() {
                 />
                 {errors.email && (
                   <p className="text-sm text-destructive mt-1">{errors.email}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Username *
+                </label>
+                <Input
+                  value={formData.username}
+                  onChange={(e) => handleInputChange('username', e.target.value)}
+                  placeholder="Enter username"
+                  className={errors.username ? 'border-destructive' : ''}
+                />
+                {errors.username && (
+                  <p className="text-sm text-destructive mt-1">{errors.username}</p>
                 )}
               </div>
 

@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useUser, useUserPerformanceSummary, useAssignedTasks, useCreatedTasks } from '@/hooks/useApi';
+import { Task } from '@/lib/api';
 import { format } from 'date-fns';
 import { 
   ArrowLeft, 
@@ -223,7 +224,7 @@ export default function UserDetailPage() {
             
             {assignedTasks && assignedTasks.length > 0 ? (
               <div className="space-y-3">
-                {assignedTasks.slice(0, 5).map((task) => (
+                {assignedTasks.slice(0, 5).map((task: Task) => (
                   <Link
                     key={task.id}
                     href={`/tasks/${task.id}`}
@@ -277,7 +278,7 @@ export default function UserDetailPage() {
             
             {createdTasks && createdTasks.length > 0 ? (
               <div className="space-y-3">
-                {createdTasks.slice(0, 5).map((task) => (
+                {createdTasks.slice(0, 5).map((task: Task) => (
                   <Link
                     key={task.id}
                     href={`/tasks/${task.id}`}
@@ -343,13 +344,13 @@ export default function UserDetailPage() {
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Completed Tasks</span>
                 <span className="font-medium">
-                  {assignedTasks?.filter(t => t.status === 'completed').length || 0}
+                  {assignedTasks?.filter((t: Task) => t.status === 'completed').length || 0}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Active Tasks</span>
                 <span className="font-medium">
-                  {assignedTasks?.filter(t => t.status === 'in_progress').length || 0}
+                  {assignedTasks?.filter((t: Task) => t.status === 'in_progress').length || 0}
                 </span>
               </div>
             </div>
