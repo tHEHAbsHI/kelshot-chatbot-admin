@@ -3,8 +3,8 @@
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useTask, useSimilarTasks, useDeleteTask } from '@/hooks/useApi';
-import { Task } from '@/lib/api';
+import { useTask, useDeleteTask } from '@/hooks/useApi';
+
 import { format } from 'date-fns';
 import { 
   ArrowLeft, 
@@ -47,7 +47,7 @@ export default function TaskDetailPage() {
   const taskId = parseInt(params.task_id as string);
 
   const { data: taskData, isLoading, error } = useTask(taskId);
-  const { data: similarTasks } = useSimilarTasks(taskId, 5);
+
   const deleteTaskMutation = useDeleteTask();
 
   const handleDeleteTask = async () => {
@@ -189,38 +189,7 @@ export default function TaskDetailPage() {
             </div>
           </div>
 
-          {/* Similar Tasks */}
-          {similarTasks && similarTasks.length > 0 && (
-            <div className="bg-card border rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4">Similar Tasks</h2>
-              <div className="space-y-3">
-                {similarTasks.map((similarTask: Task) => (
-                  <Link
-                    key={similarTask.id}
-                    href={`/tasks/${similarTask.id}`}
-                    className="block p-3 border rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-medium">{similarTask.title}</h4>
-                        <p className="text-sm text-muted-foreground line-clamp-1">
-                          {similarTask.description}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[similarTask.status as keyof typeof statusColors]}`}>
-                          {similarTask.status.replace('_', ' ')}
-                        </span>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[similarTask.priority as keyof typeof priorityColors]}`}>
-                          {similarTask.priority}
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
+
         </div>
 
         {/* Sidebar */}
