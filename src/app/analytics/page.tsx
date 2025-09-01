@@ -12,6 +12,29 @@ import {
   Award
 } from 'lucide-react';
 
+interface TeamMemberPerformance {
+  user_id: number;
+  user_name: string;
+  tasks_completed_total: number;
+  on_time_completion_rate: number;
+  average_completion_time?: number;
+  overall_rating: 'excellent' | 'good' | 'fair' | 'poor';
+}
+
+interface PerformanceTrend {
+  period: string;
+  total_tasks: number;
+  completed_tasks: number;
+  completion_rate: number;
+}
+
+interface PerformancePattern {
+  pattern_type: 'low_completion' | 'high_performance' | 'consistent';
+  user_name: string;
+  description: string;
+  confidence: number;
+}
+
 export default function AnalyticsPage() {
   const { data: teamPerformance, isLoading: teamLoading } = useTeamPerformanceSummary();
   const { data: trends, isLoading: trendsLoading } = useAnalyticsTrends('weekly');
@@ -40,7 +63,7 @@ export default function AnalyticsPage() {
           <h2 className="text-xl font-semibold mb-4">Team Performance Overview</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {teamPerformance.map((member) => (
+            {teamPerformance.map((member: TeamMemberPerformance) => (
               <div key={member.user_id} className="bg-muted/50 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Users className="h-4 w-4 text-primary" />
@@ -84,7 +107,7 @@ export default function AnalyticsPage() {
           <h2 className="text-xl font-semibold mb-4">Performance Trends</h2>
           
           <div className="space-y-4">
-            {trends.map((trend, index) => (
+            {trends.map((trend: PerformanceTrend, index: number) => (
               <div key={index} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
                 <div className="flex items-center gap-3">
                   <BarChart3 className="h-5 w-5 text-primary" />
@@ -114,7 +137,7 @@ export default function AnalyticsPage() {
           <h2 className="text-xl font-semibold mb-4">Performance Patterns</h2>
           
           <div className="space-y-3">
-            {patterns.map((pattern, index) => (
+            {patterns.map((pattern: PerformancePattern, index: number) => (
               <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center gap-3">
                   {pattern.pattern_type === 'low_completion' && (
@@ -156,7 +179,7 @@ export default function AnalyticsPage() {
           </div>
           <p className="text-2xl font-bold text-green-600">
             {teamPerformance && teamPerformance.length > 0 
-              ? Math.round(teamPerformance.reduce((acc, member) => acc + member.on_time_completion_rate, 0) / teamPerformance.length * 100)
+              ? Math.round(teamPerformance.reduce((acc: number, member: TeamMemberPerformance) => acc + member.on_time_completion_rate, 0) / teamPerformance.length * 100)
               : 0}%
           </p>
           <p className="text-sm text-muted-foreground">Average on-time completion</p>
@@ -179,7 +202,7 @@ export default function AnalyticsPage() {
             <h3 className="font-medium">Total Tasks Completed</h3>
           </div>
           <p className="text-2xl font-bold text-green-600">
-            {teamPerformance?.reduce((acc, member) => acc + member.tasks_completed_total, 0) || 0}
+            {teamPerformance?.reduce((acc: number, member: TeamMemberPerformance) => acc + member.tasks_completed_total, 0) || 0}
           </p>
           <p className="text-sm text-muted-foreground">Across all team members</p>
         </div>
@@ -191,7 +214,7 @@ export default function AnalyticsPage() {
           </div>
           <p className="text-2xl font-bold text-orange-600">
             {teamPerformance && teamPerformance.length > 0
-              ? (teamPerformance.reduce((acc, member) => acc + (member.average_completion_time || 0), 0) / teamPerformance.length).toFixed(1)
+              ? (teamPerformance.reduce((acc: number, member: TeamMemberPerformance) => acc + (member.average_completion_time || 0), 0) / teamPerformance.length).toFixed(1)
               : 'N/A'} days
           </p>
           <p className="text-sm text-muted-foreground">Team average</p>
