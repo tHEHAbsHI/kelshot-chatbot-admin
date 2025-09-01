@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -9,15 +9,10 @@ import { useUser, useUpdateUser } from '@/hooks/useApi';
 import { ArrowLeft, Save, X } from 'lucide-react';
 import Link from 'next/link';
 
-interface EditUserPageProps {
-  params: {
-    user_id: string;
-  };
-}
-
-export default function EditUserPage({ params }: EditUserPageProps) {
+export default function EditUserPage() {
   const router = useRouter();
-  const userId = parseInt(params.user_id);
+  const params = useParams();
+  const userId = parseInt(params.user_id as string);
   const { data: userData, isLoading: userLoading } = useUser(userId);
   const updateUserMutation = useUpdateUser();
   
