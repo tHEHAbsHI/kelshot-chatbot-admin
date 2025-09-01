@@ -69,7 +69,7 @@ export default function TaskDetailPage() {
     );
   }
 
-  if (error || !taskData?.task) {
+  if (error || !taskData) {
     return (
       <div className="text-center py-8">
         <p className="text-destructive">Task not found or error loading task.</p>
@@ -83,7 +83,7 @@ export default function TaskDetailPage() {
     );
   }
 
-  const task = taskData.task;
+  const task = taskData;
   const StatusIcon = statusIcons[task.status as keyof typeof statusIcons];
 
   return (

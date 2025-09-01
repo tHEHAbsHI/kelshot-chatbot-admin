@@ -10,29 +10,8 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  async redirects() {
-    return [
-      // Handle mixed trailing slash patterns based on actual API documentation
-      // Only redirect collection endpoints that actually have trailing slashes in the backend
-      {
-        source: '/api/v1/tasks',
-        destination: '/api/v1/tasks/',
-        permanent: false,
-      },
-      {
-        source: '/api/v1/users',
-        destination: '/api/v1/users/',
-        permanent: false,
-      },
-      {
-        source: '/api/v1/conversations',
-        destination: '/api/v1/conversations/',
-        permanent: false,
-      },
-      // Note: performance/evaluations, analytics/patterns, analytics/trends 
-      // do NOT have trailing slashes in the backend, so no redirects needed
-    ];
-  },
+  // Removed redirects to prevent redirect loops
+  // The backend handles both trailing slash and non-trailing slash requests
 };
 
 export default nextConfig;
