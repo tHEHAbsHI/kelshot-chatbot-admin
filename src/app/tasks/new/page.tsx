@@ -23,7 +23,6 @@ export default function NewTaskPage() {
     status: 'pending',
     deadline: '',
     assigned_to: '',
-    tags: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -70,7 +69,6 @@ export default function NewTaskPage() {
         priority: formData.priority as 'low' | 'medium' | 'high' | 'urgent',
         assigned_to: parseInt(formData.assigned_to),
         created_by: createdByUserId,
-        tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : [],
       };
       
       await createTaskMutation.mutateAsync({ taskData, createdByUserId });
@@ -139,19 +137,7 @@ export default function NewTaskPage() {
                 )}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Tags
-                </label>
-                <Input
-                  value={formData.tags}
-                  onChange={(e) => handleInputChange('tags', e.target.value)}
-                  placeholder="Enter tags separated by commas"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Separate multiple tags with commas
-                </p>
-              </div>
+
             </div>
           </div>
 

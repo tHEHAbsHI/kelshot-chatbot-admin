@@ -5,13 +5,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { useChat } from '@/hooks/useApi';
-import { Send, Bot, User } from 'lucide-react';
+import { Send, Bot, User, ChevronDown, ChevronUp } from 'lucide-react';
+
+interface UsageDetails {
+  input_tokens: number;
+  output_tokens: number;
+  thought_tokens?: number;
+  message_count: number;
+}
 
 interface ChatMessage {
   id: string;
   content: string;
   isUser: boolean;
   timestamp: Date;
+  usage?: UsageDetails;
 }
 
 export default function HomePage() {
@@ -19,6 +27,7 @@ export default function HomePage() {
   const [inputMessage, setInputMessage] = useState('');
   const [threadId, setThreadId] = useState<string | undefined>();
   const [selectedModel, setSelectedModel] = useState('gemini-2.5-pro');
+  const [expandedUsage, setExpandedUsage] = useState<Set<string>>(new Set());
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatMutation = useChat();
 
@@ -60,6 +69,12 @@ export default function HomePage() {
         content: response.reply,
         isUser: false,
         timestamp: new Date(),
+        usage: {
+          input_tokens: response.input_tokens,
+          output_tokens: response.output_tokens,
+          thought_tokens: response.thought_tokens,
+          message_count: response.message_count,
+        },
       };
 
       setMessages(prev => [...prev, botMessage]);
@@ -83,6 +98,30 @@ export default function HomePage() {
     }
   };
 
+  const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newModel = e.target.value;
+    setSelectedModel(newModel);
+    // Clear chat when model is switched
+    setMessages([]);
+    setThreadId(undefined);
+  };
+
+  const toggleUsageDetails = (messageId: string) => {
+    setExpandedUsage(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(messageId)) {
+        newSet.delete(messageId);
+      } else {
+        newSet.add(messageId);
+      }
+      return newSet;
+    });
+  };
+
+  const formatTokenCount = (count: number) => {
+    return count.toLocaleString();
+  };
+
   return (
     <div className="flex flex-col h-full max-w-4xl mx-auto">
       <div className="mb-6">
@@ -97,13 +136,18 @@ export default function HomePage() {
           <Select
             id="model-select"
             value={selectedModel}
-            onChange={(e) => setSelectedModel(e.target.value)}
+            onChange={handleModelChange}
             className="w-48"
           >
             <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
             <option value="gemini-2.0-pro">Gemini 2.0 Pro</option>
             <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
             <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+            <option value="gpt-4.1">GPT-4.1</option>
+            <option value="gpt-4.1-mini">GPT-4.1 Mini</option>
+            <option value="gpt-5">GPT-5</option>
+            <option value="gpt-5-mini">GPT-5 Mini</option>
+            <option value="o3-mini">O3 Mini</option>
           </Select>
         </div>
         <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-md">
@@ -153,11 +197,53 @@ export default function HomePage() {
                   }`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                  <p className={`text-xs mt-1 ${
-                    message.isUser ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                  }`}>
-                    {message.timestamp.toLocaleTimeString()}
-                  </p>
+                  <div className="flex items-center justify-between mt-1">
+                    <p className={`text-xs ${
+                      message.isUser ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                    }`}>
+                      {message.timestamp.toLocaleTimeString()}
+                    </p>
+                    {!message.isUser && message.usage && (
+                      <button
+                        onClick={() => toggleUsageDetails(message.id)}
+                        className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-1"
+                      >
+                        <span>Usage</span>
+                        {expandedUsage.has(message.id) ? (
+                          <ChevronUp className="h-3 w-3" />
+                        ) : (
+                          <ChevronDown className="h-3 w-3" />
+                        )}
+                      </button>
+                    )}
+                  </div>
+                  {!message.isUser && message.usage && expandedUsage.has(message.id) && (
+                    <div className="mt-2 p-2 bg-background/50 rounded border text-xs">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <span className="font-medium">Input:</span> {formatTokenCount(message.usage.input_tokens)}
+                        </div>
+                        <div>
+                          <span className="font-medium">Output:</span> {formatTokenCount(message.usage.output_tokens)}
+                        </div>
+                        {message.usage.thought_tokens && (
+                          <div>
+                            <span className="font-medium">Thought:</span> {formatTokenCount(message.usage.thought_tokens)}
+                          </div>
+                        )}
+                        <div>
+                          <span className="font-medium">Messages:</span> {message.usage.message_count}
+                        </div>
+                      </div>
+                      <div className="mt-1 pt-1 border-t border-border/50">
+                        <span className="font-medium">Total:</span> {formatTokenCount(
+                          message.usage.input_tokens + 
+                          message.usage.output_tokens + 
+                          (message.usage.thought_tokens || 0)
+                        )} tokens
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

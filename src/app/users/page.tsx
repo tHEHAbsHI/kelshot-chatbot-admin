@@ -52,9 +52,9 @@ export default function UsersPage() {
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
       return (
-        user.name.toLowerCase().includes(searchLower) ||
-        user.email.toLowerCase().includes(searchLower) ||
-        user.username.toLowerCase().includes(searchLower)
+        (user.name?.toLowerCase().includes(searchLower) || false) ||
+        (user.email?.toLowerCase().includes(searchLower) || false) ||
+        (user.username?.toLowerCase().includes(searchLower) || false)
       );
     }
     return true;

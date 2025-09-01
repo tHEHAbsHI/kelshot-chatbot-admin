@@ -26,15 +26,14 @@ export default function EditTaskPage() {
     status: 'pending',
     deadline: '',
     assigned_to: '',
-    tags: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Load task data when it's available
   useEffect(() => {
-    if (taskData?.task) {
-      const task = taskData.task;
+    if (taskData) {
+      const task = taskData;
       setFormData({
         title: task.title,
         description: task.description,
@@ -42,7 +41,6 @@ export default function EditTaskPage() {
         status: task.status,
         deadline: new Date(task.deadline).toISOString().slice(0, 16),
         assigned_to: task.assigned_to.toString(),
-        tags: task.tags?.join(', ') || '',
       });
     }
   }, [taskData]);
@@ -83,7 +81,6 @@ export default function EditTaskPage() {
         status: formData.status as 'pending' | 'in_progress' | 'completed' | 'cancelled',
         priority: formData.priority as 'low' | 'medium' | 'high' | 'urgent',
         assigned_to: parseInt(formData.assigned_to),
-        tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : [],
       };
       
       await updateTaskMutation.mutateAsync({ taskId, taskData: taskUpdateData });
@@ -108,7 +105,7 @@ export default function EditTaskPage() {
     );
   }
 
-  if (!taskData?.task) {
+  if (!taskData) {
     return (
       <div className="text-center py-8">
         <p className="text-destructive">Task not found.</p>
@@ -171,19 +168,7 @@ export default function EditTaskPage() {
                 )}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Tags
-                </label>
-                <Input
-                  value={formData.tags}
-                  onChange={(e) => handleInputChange('tags', e.target.value)}
-                  placeholder="Enter tags separated by commas"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Separate multiple tags with commas
-                </p>
-              </div>
+
             </div>
           </div>
 

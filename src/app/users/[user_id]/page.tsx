@@ -28,7 +28,7 @@ export default function UserDetailPage() {
   const userId = parseInt(params.user_id as string);
 
   const { data: user, isLoading, error } = useUser(userId);
-  const { data: performance } = useUserPerformanceSummary(userId);
+  const { data: performance, error: performanceError } = useUserPerformanceSummary(userId);
   const { data: assignedTasks } = useAssignedTasks(userId);
   const { data: createdTasks } = useCreatedTasks(userId);
 
@@ -160,7 +160,7 @@ export default function UserDetailPage() {
           </div>
 
           {/* Performance Summary */}
-          {performance && (
+          {performance ? (
             <div className="bg-card border rounded-lg p-6">
               <h2 className="text-xl font-semibold mb-4">Performance Summary</h2>
               
@@ -216,7 +216,16 @@ export default function UserDetailPage() {
                 </div>
               )}
             </div>
-          )}
+          ) : performanceError && performanceError.response?.status === 404 ? (
+            <div className="bg-card border rounded-lg p-6">
+              <h2 className="text-xl font-semibold mb-4">Performance Summary</h2>
+              <div className="text-center py-8">
+                <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground mb-2">No performance evaluations found for this user</p>
+                <p className="text-sm text-muted-foreground">Complete a task to start analyzing performance</p>
+              </div>
+            </div>
+          ) : null}
 
           {/* Assigned Tasks */}
           <div className="bg-card border rounded-lg p-6">

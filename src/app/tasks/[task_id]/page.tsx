@@ -3,7 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useTask, useDeleteTask } from '@/hooks/useApi';
+import { useTask, useDeleteTask, useUpdateTask } from '@/hooks/useApi';
 
 import { format } from 'date-fns';
 import { 
@@ -49,6 +49,7 @@ export default function TaskDetailPage() {
   const { data: taskData, isLoading, error } = useTask(taskId);
 
   const deleteTaskMutation = useDeleteTask();
+  const updateTaskMutation = useUpdateTask();
 
   const handleDeleteTask = async () => {
     if (confirm('Are you sure you want to delete this task?')) {
@@ -58,6 +59,28 @@ export default function TaskDetailPage() {
       } catch (error) {
         console.error('Error deleting task:', error);
       }
+    }
+  };
+
+  const handleStartTask = async () => {
+    try {
+      await updateTaskMutation.mutateAsync({
+        taskId,
+        taskData: { status: 'in_progress' }
+      });
+    } catch (error) {
+      console.error('Error starting task:', error);
+    }
+  };
+
+  const handleMarkComplete = async () => {
+    try {
+      await updateTaskMutation.mutateAsync({
+        taskId,
+        taskData: { status: 'completed' }
+      });
+    } catch (error) {
+      console.error('Error marking task complete:', error);
     }
   };
 
@@ -198,14 +221,28 @@ export default function TaskDetailPage() {
           <div className="bg-card border rounded-lg p-6">
             <h3 className="font-semibold mb-4">Quick Actions</h3>
             <div className="space-y-2">
-              <Button className="w-full justify-start" variant="outline">
-                <Play className="h-4 w-4 mr-2" />
-                Start Task
-              </Button>
-              <Button className="w-full justify-start" variant="outline">
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Mark Complete
-              </Button>
+              {task.status === 'pending' && (
+                <Button 
+                  className="w-full justify-start" 
+                  variant="outline"
+                  onClick={handleStartTask}
+                  disabled={updateTaskMutation.isPending}
+                >
+                  <Play className="h-4 w-4 mr-2" />
+                  Start Task
+                </Button>
+              )}
+              {task.status === 'in_progress' && (
+                <Button 
+                  className="w-full justify-start" 
+                  variant="outline"
+                  onClick={handleMarkComplete}
+                  disabled={updateTaskMutation.isPending}
+                >
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Mark Complete
+                </Button>
+              )}
               <Button className="w-full justify-start" variant="outline">
                 <AlertCircle className="h-4 w-4 mr-2" />
                 Report Issue
