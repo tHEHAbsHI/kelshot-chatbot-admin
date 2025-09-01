@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { useDetectTasks, useCreateTask } from '@/hooks/useApi';
@@ -18,6 +17,14 @@ import {
   Target,
   Calendar
 } from 'lucide-react';
+
+interface DetectedTask {
+  title: string;
+  description: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  confidence: number;
+  estimated_deadline?: string;
+}
 
 const sourceOptions = [
   { value: 'general', label: 'General Text', icon: FileText },
@@ -35,7 +42,7 @@ const priorityColors = {
 export default function TaskDetectionPage() {
   const [text, setText] = useState('');
   const [source, setSource] = useState<'general' | 'email' | 'whatsapp'>('general');
-  const [detectedTasks, setDetectedTasks] = useState<any[]>([]);
+  const [detectedTasks, setDetectedTasks] = useState<DetectedTask[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const detectTasksMutation = useDetectTasks();
@@ -55,7 +62,7 @@ export default function TaskDetectionPage() {
     }
   };
 
-  const handleCreateTask = async (detectedTask: any) => {
+  const handleCreateTask = async (detectedTask: DetectedTask) => {
     try {
       // Temporary user ID - in a real app, this would come from authentication
       const createdByUserId = 1;
@@ -67,6 +74,7 @@ export default function TaskDetectionPage() {
           status: 'pending',
           priority: detectedTask.priority,
           assigned_to: 1, // Default assignment
+          created_by: createdByUserId,
           deadline: detectedTask.estimated_deadline || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         },
         createdByUserId,
@@ -184,7 +192,7 @@ export default function TaskDetectionPage() {
             {detectedTasks.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No tasks detected yet. Paste some text and click "Detect Tasks" to get started.</p>
+                <p>No tasks detected yet. Paste some text and click &quot;Detect Tasks&quot; to get started.</p>
               </div>
             ) : (
               <div className="space-y-4">

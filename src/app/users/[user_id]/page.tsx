@@ -8,7 +8,6 @@ import { format } from 'date-fns';
 import { 
   ArrowLeft, 
   Edit, 
-  Trash2, 
   Calendar, 
   User, 
   Mail,
@@ -25,7 +24,6 @@ import {
 
 export default function UserDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const userId = parseInt(params.user_id as string);
 
   const { data: user, isLoading, error } = useUser(userId);

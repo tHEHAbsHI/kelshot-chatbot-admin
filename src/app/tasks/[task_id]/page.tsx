@@ -16,8 +16,7 @@ import {
   CheckCircle,
   AlertCircle,
   XCircle,
-  Play,
-  Pause
+  Play
 } from 'lucide-react';
 
 const priorityColors = {

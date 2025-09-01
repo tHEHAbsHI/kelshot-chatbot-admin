@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiService, type User, type Task, type Conversation, type Message, type PerformanceEvaluation, type DetectedTask } from '@/lib/api';
+import { apiService, type User, type Task, type PerformanceEvaluation } from '@/lib/api';
 
 // Users hooks
 export const useUsers = (params?: {

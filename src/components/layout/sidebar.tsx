@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+
 import { Navigation } from './navigation';
 import { Button } from '@/components/ui/button';
 import { X, Menu } from 'lucide-react';

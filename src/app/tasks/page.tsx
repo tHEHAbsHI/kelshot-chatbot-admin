@@ -9,7 +9,6 @@ import { useTasks, useDeleteTask } from '@/hooks/useApi';
 import { format } from 'date-fns';
 import { 
   Plus, 
-  Search, 
   Filter, 
   Edit, 
   Trash2, 

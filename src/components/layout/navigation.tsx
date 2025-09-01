@@ -9,8 +9,7 @@ import {
   CheckSquare, 
   MessageSquare, 
   Search,
-  BarChart3,
-  Settings
+  BarChart3
 } from 'lucide-react';
 
 const navigation = [
