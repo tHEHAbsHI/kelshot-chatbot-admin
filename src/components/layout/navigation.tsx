@@ -7,7 +7,6 @@ import {
   Home, 
   Users, 
   CheckSquare, 
-  MessageSquare, 
   Search,
   BarChart3
 } from 'lucide-react';
@@ -16,7 +15,6 @@ const navigation = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare },
   { name: 'Users', href: '/users', icon: Users },
-  { name: 'Chat', href: '/chat', icon: MessageSquare },
   { name: 'Task Detection', href: '/task-detection', icon: Search },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
 ];
