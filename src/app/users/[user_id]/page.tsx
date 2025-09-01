@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useUser, useUserPerformanceSummary, useAssignedTasks, useCreatedTasks } from '@/hooks/useApi';

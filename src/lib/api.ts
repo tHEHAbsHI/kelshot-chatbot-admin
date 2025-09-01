@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// API base URL - update this to match your backend URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://ec2-54-91-102-216.compute-1.amazonaws.com/api/v1';
+// API base URL - using relative path for Vercel proxy
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 // Create axios instance with better error handling
 export const api = axios.create({

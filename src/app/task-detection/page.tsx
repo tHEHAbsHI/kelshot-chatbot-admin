@@ -121,14 +121,11 @@ export default function TaskDetectionPage() {
                   value={source}
                   onChange={(e) => setSource(e.target.value as 'general' | 'email' | 'whatsapp')}
                 >
-                  {sourceOptions.map((option) => {
-                    const Icon = option.icon;
-                    return (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    );
-                  })}
+                  {sourceOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </Select>
               </div>
 
