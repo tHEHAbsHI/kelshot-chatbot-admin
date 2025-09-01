@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,15 +10,10 @@ import { useTask, useUpdateTask, useUsers } from '@/hooks/useApi';
 import { ArrowLeft, Save, X } from 'lucide-react';
 import Link from 'next/link';
 
-interface EditTaskPageProps {
-  params: {
-    task_id: string;
-  };
-}
-
-export default function EditTaskPage({ params }: EditTaskPageProps) {
+export default function EditTaskPage() {
   const router = useRouter();
-  const taskId = parseInt(params.task_id);
+  const params = useParams();
+  const taskId = parseInt(params.task_id as string);
   const { data: taskData, isLoading: taskLoading } = useTask(taskId);
   const { data: usersData } = useUsers();
   const updateTaskMutation = useUpdateTask();
