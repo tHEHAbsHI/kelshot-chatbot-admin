@@ -6,6 +6,11 @@ import { Button } from '@/components/ui/button';
 import { useUser, useUserPerformanceSummary, useAssignedTasks, useCreatedTasks } from '@/hooks/useApi';
 import { Task } from '@/lib/api';
 import { format } from 'date-fns';
+
+// Type guard for Axios error
+const isAxiosError = (error: unknown): error is { response?: { status?: number } } => {
+  return error !== null && typeof error === 'object' && 'response' in error;
+};
 import { 
   ArrowLeft, 
   Edit, 
@@ -216,7 +221,7 @@ export default function UserDetailPage() {
                 </div>
               )}
             </div>
-          ) : performanceError && performanceError.response?.status === 404 ? (
+          ) : performanceError && isAxiosError(performanceError) && performanceError.response?.status === 404 ? (
             <div className="bg-card border rounded-lg p-6">
               <h2 className="text-xl font-semibold mb-4">Performance Summary</h2>
               <div className="text-center py-8">
