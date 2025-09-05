@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -122,6 +122,32 @@ export default function HomePage() {
     return count.toLocaleString();
   };
 
+  // Render minimal inline markdown for bold text (**text**), safely as React nodes
+  const renderInlineMarkdown = (text: string) => {
+    const nodes: ReactNode[] = [];
+    const regex = /\*\*(.+?)\*\*/g;
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = regex.exec(text)) !== null) {
+      const [fullMatch, boldText] = match;
+      const startIndex = match.index;
+      if (startIndex > lastIndex) {
+        nodes.push(text.slice(lastIndex, startIndex));
+      }
+      nodes.push(<strong key={`b-${startIndex}`}>{boldText}</strong>);
+      lastIndex = startIndex + fullMatch.length;
+    }
+
+    if (lastIndex < text.length) {
+      nodes.push(text.slice(lastIndex));
+    }
+
+    // If no markdown was found, return the original string for performance
+    if (nodes.length === 0) return text;
+    return nodes;
+  };
+
   return (
     <div className="flex flex-col h-full max-w-4xl mx-auto">
       <div className="mb-6">
@@ -149,12 +175,6 @@ export default function HomePage() {
             <option value="gpt-5-mini">GPT-5 Mini</option>
             <option value="o3-mini">O3 Mini</option>
           </Select>
-        </div>
-        <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-md">
-          <p className="text-sm text-amber-800">
-            <strong>Note:</strong> This application uses free API keys, so there are rate limits in place. 
-            Please be patient if responses are slower than expected.
-          </p>
         </div>
       </div>
 
@@ -196,7 +216,7 @@ export default function HomePage() {
                       : 'bg-muted text-foreground'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  <p className="text-sm whitespace-pre-wrap">{renderInlineMarkdown(message.content)}</p>
                   <div className="flex items-center justify-between mt-1">
                     <p className={`text-xs ${
                       message.isUser ? 'text-primary-foreground/70' : 'text-muted-foreground'
