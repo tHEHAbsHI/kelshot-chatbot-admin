@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { useChat } from '@/hooks/useApi';
-import { Send, Bot, User, ChevronDown, ChevronUp } from 'lucide-react';
+import { Send, Bot, User, ChevronDown, ChevronUp, X } from 'lucide-react';
 
 interface UsageDetails {
   input_tokens: number;
@@ -22,6 +22,12 @@ interface ChatMessage {
   usage?: UsageDetails;
 }
 
+interface NotificationItem {
+  id: string;
+  member_name: string;
+  message: string;
+}
+
 export default function HomePage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -30,6 +36,7 @@ export default function HomePage() {
   const [expandedUsage, setExpandedUsage] = useState<Set<string>>(new Set());
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatMutation = useChat();
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
   // Temporary user ID - in a real app, this would come from authentication
   const userId = 1;
@@ -79,6 +86,23 @@ export default function HomePage() {
 
       setMessages(prev => [...prev, botMessage]);
       setThreadId(response.thread_id);
+
+      // Handle optional notifications list from chat response
+      const responseNotifications = (response?.notifications ?? []) as Array<{
+        member_name?: string;
+        message?: string;
+      }>;
+      if (Array.isArray(responseNotifications) && responseNotifications.length > 0) {
+        const base = Date.now();
+        const mapped: NotificationItem[] = responseNotifications
+          .filter(n => n && (n.member_name || n.message))
+          .map((n, i) => ({
+            id: `${base}-${i}`,
+            member_name: String(n.member_name ?? ''),
+            message: String(n.message ?? ''),
+          }));
+        if (mapped.length > 0) setNotifications(mapped);
+      }
     } catch (error) {
       console.error('Chat error:', error);
       const errorMessage: ChatMessage = {
@@ -310,6 +334,25 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+      {notifications.length > 0 && (
+        <div className="mt-4 space-y-2">
+          {notifications.map(n => (
+            <div key={n.id} className="flex items-start justify-between rounded-md border bg-accent/30 text-foreground px-3 py-2">
+              <div className="text-sm">
+                <span className="font-medium">To: {n.member_name || 'Member'}</span>
+                {n.message && <span className="ml-2">{n.message}</span>}
+              </div>
+              <button
+                aria-label="Dismiss notification"
+                className="ml-3 text-muted-foreground hover:text-foreground"
+                onClick={() => setNotifications(prev => prev.filter(item => item.id !== n.id))}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

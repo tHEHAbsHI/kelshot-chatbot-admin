@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { useUser, useUpdateUser } from '@/hooks/useApi';
+import type { User } from '@/lib/api';
 import { ArrowLeft, Save, X } from 'lucide-react';
 import Link from 'next/link';
 
@@ -27,17 +28,19 @@ export default function EditUserPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  type ExtendedUser = User & { position?: string; phone?: string };
+
   // Load user data when it's available
   useEffect(() => {
-    if (userData?.user) {
-      const user = userData.user;
+    if (userData) {
+      const u = userData as ExtendedUser;
       setFormData({
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        department: user.department || '',
-        position: user.position || '',
-        phone: user.phone || '',
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        department: u.department || '',
+        position: u.position || '',
+        phone: u.phone || '',
       });
     }
   }, [userData]);
@@ -101,7 +104,7 @@ export default function EditUserPage() {
     );
   }
 
-  if (!userData?.user) {
+  if (!userData) {
     return (
       <div className="text-center py-8">
         <p className="text-destructive">User not found.</p>
