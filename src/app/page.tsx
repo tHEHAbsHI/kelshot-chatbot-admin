@@ -20,6 +20,7 @@ interface ChatMessage {
   isUser: boolean;
   timestamp: Date;
   usage?: UsageDetails;
+  conversationId?: number;
 }
 
 interface NotificationItem {
@@ -82,6 +83,7 @@ export default function HomePage() {
           thought_tokens: response.thought_tokens,
           message_count: response.message_count,
         },
+        conversationId: response.conversation_id,
       };
 
       setMessages(prev => [...prev, botMessage]);
@@ -142,7 +144,10 @@ export default function HomePage() {
     });
   };
 
-  const formatTokenCount = (count: number) => {
+  const formatTokenCount = (count: number | undefined | null) => {
+    if (!count || count === 0) {
+      return '0';
+    }
     return count.toLocaleString();
   };
 
@@ -242,11 +247,20 @@ export default function HomePage() {
                 >
                   <p className="text-sm whitespace-pre-wrap">{renderInlineMarkdown(message.content)}</p>
                   <div className="flex items-center justify-between mt-1">
-                    <p className={`text-xs ${
-                      message.isUser ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                    }`}>
-                      {message.timestamp.toLocaleTimeString()}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className={`text-xs ${
+                        message.isUser ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                      }`}>
+                        {message.timestamp.toLocaleTimeString()}
+                      </p>
+                      {!message.isUser && message.conversationId && (
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          message.isUser ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-muted-foreground/20 text-muted-foreground'
+                        }`}>
+                          Conv #{message.conversationId}
+                        </span>
+                      )}
+                    </div>
                     {!message.isUser && message.usage && (
                       <button
                         onClick={() => toggleUsageDetails(message.id)}

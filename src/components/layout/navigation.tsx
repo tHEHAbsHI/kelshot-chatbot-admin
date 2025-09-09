@@ -8,13 +8,17 @@ import {
   Users, 
   CheckSquare, 
   Search,
-  BarChart3
+  BarChart3,
+  StickyNote,
+  MessageSquare
 } from 'lucide-react';
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare },
   { name: 'Users', href: '/users', icon: Users },
+  { name: 'Notes', href: '/notes', icon: StickyNote },
+  { name: 'Conversations', href: '/conversations', icon: MessageSquare },
   { name: 'Task Detection', href: '/task-detection', icon: Search },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
 ];

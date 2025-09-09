@@ -110,6 +110,34 @@ export interface DetectedTask {
   confidence: number;
 }
 
+export interface Note {
+  id: number;
+  text: string;
+  user_id: number;
+  created_at: string;
+  updated_at: string;
+  has_embedding: boolean;
+}
+
+export interface NoteSearchResult extends Note {
+  similarity: number;
+}
+
+export interface NotesResponse {
+  notes: Note[];
+  total: number;
+  page: number;
+  size: number;
+}
+
+export interface NoteSearchResponse {
+  notes: NoteSearchResult[];
+  total: number;
+  page: number;
+  size: number;
+  query: string;
+}
+
 // API functions
 export const apiService = {
   // Users
@@ -311,6 +339,46 @@ export const apiService = {
   detectTasks: async (text: string, source: 'general' | 'email' | 'whatsapp' = 'general') => {
     const endpoint = source === 'email' ? '/detect/email' : source === 'whatsapp' ? '/detect/whatsapp' : '/detect/tasks';
     const response = await api.post(endpoint, { text, source });
+    return response.data;
+  },
+
+  // Notes
+  getNotes: async (params?: {
+    page?: number;
+    page_size?: number;
+    user_id?: number;
+  }) => {
+    const response = await api.get('/notes/', { params });
+    return response.data;
+  },
+
+  getNote: async (noteId: number) => {
+    const response = await api.get(`/notes/${noteId}`);
+    return response.data;
+  },
+
+  createNote: async (noteData: { text: string; user_id: number }) => {
+    const response = await api.post('/notes/', noteData);
+    return response.data;
+  },
+
+  updateNote: async (noteId: number, noteData: { text: string; user_id: number }) => {
+    const response = await api.put(`/notes/${noteId}`, noteData);
+    return response.data;
+  },
+
+  deleteNote: async (noteId: number) => {
+    const response = await api.delete(`/notes/${noteId}`);
+    return response.data;
+  },
+
+  searchNotes: async (query: string, params?: {
+    page?: number;
+    page_size?: number;
+  }) => {
+    const response = await api.get('/notes/search/', { 
+      params: { query, ...params } 
+    });
     return response.data;
   },
 };
