@@ -60,20 +60,21 @@ export default function ConversationDetailPage() {
     
     if (!newMessage.trim() || sending) return;
 
+    // Create the user message outside try block so it's accessible in catch
+    const userMessage: Message = {
+      id: Date.now(), // Temporary ID
+      conversation_id: conversationId,
+      content: newMessage.trim(),
+      is_user_message: true,
+      input_tokens: newMessage.trim().split(' ').length,
+      output_tokens: 0,
+      created_at: new Date().toISOString()
+    };
+
     try {
       setSending(true);
       
       // Add the user message immediately to the UI
-      const userMessage: Message = {
-        id: Date.now(), // Temporary ID
-        conversation_id: conversationId,
-        content: newMessage.trim(),
-        is_user_message: true,
-        input_tokens: newMessage.trim().split(' ').length,
-        output_tokens: 0,
-        created_at: new Date().toISOString()
-      };
-      
       setMessages(prev => [...(prev || []), userMessage]);
       setNewMessage('');
       
